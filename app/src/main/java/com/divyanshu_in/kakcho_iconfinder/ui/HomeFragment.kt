@@ -1,7 +1,6 @@
 package com.divyanshu_in.kakcho_iconfinder.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,8 +37,10 @@ class HomeFragment : Fragment() {
     ): View {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        rvadapter = CategoriesAdapter(requireContext()){categoryName, categoryIdentifier ->
-            findNavController().navigate(HomeFragmentDirections.actionFirstFragmentToIconSetsFragment(categoryIdentifier, categoryName))
+        rvadapter = CategoriesAdapter(requireContext()) { categoryName, categoryIdentifier ->
+            findNavController().navigate(HomeFragmentDirections.actionFirstFragmentToIconSetsFragment(
+                categoryIdentifier,
+                categoryName))
         }
 
         childFragmentManager.beginTransaction()
@@ -70,14 +71,14 @@ class HomeFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
 
-            viewModel.categoryData.collect{
+            viewModel.categoryData.collect {
 
                 totalCategoryCount += (it?.categories?.size ?: 0)
                 isEndReached = ((it?.totalCount != null) && (totalCategoryCount == it.totalCount))
                 lastCategoryIdentifier = it?.categories?.last()?.identifier
                 rvadapter?.updateAdapter(it?.categories ?: emptyList())
 
-                if(isEndReached){
+                if (isEndReached) {
                     rvadapter?.endReached()
                 }
             }

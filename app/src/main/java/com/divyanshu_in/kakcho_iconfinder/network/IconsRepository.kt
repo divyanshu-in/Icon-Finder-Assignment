@@ -1,19 +1,10 @@
 package com.divyanshu_in.kakcho_iconfinder.network
 
-import android.util.Log
-import com.divyanshu_in.kakcho_iconfinder.models.ListCategoriesData
-import com.divyanshu_in.kakcho_iconfinder.utils.ApiResponse
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.withContext
-import retrofit2.Response
-import retrofit2.http.Query
-import javax.inject.Inject
 
-class IconsRepository(val iconsApi: IconsApi): BaseRepository() {
+class IconsRepository(val iconsApi: IconsApi) : BaseRepository() {
 
-    fun listAllCategories(lastCategoryIdentifier: String?) = flow{
+    fun listAllCategories(lastCategoryIdentifier: String?) = flow {
 
         emit(
             safeApiCall {
@@ -22,7 +13,7 @@ class IconsRepository(val iconsApi: IconsApi): BaseRepository() {
         )
     }
 
-    suspend fun getItemSets(categoryIdentifier: String, offset: Int) = flow{
+    suspend fun getItemSets(categoryIdentifier: String, offset: Int) = flow {
         emit(
             safeApiCall {
                 iconsApi.getItemSets(category = categoryIdentifier, offset)
@@ -32,8 +23,8 @@ class IconsRepository(val iconsApi: IconsApi): BaseRepository() {
 
     fun getAllIcons(
         iconsetId: Int,
-        offset: Int
-    ) = flow{
+        offset: Int,
+    ) = flow {
         emit(
             safeApiCall { iconsApi.getAllIcons(iconsetId, offset) }
         )
@@ -41,8 +32,8 @@ class IconsRepository(val iconsApi: IconsApi): BaseRepository() {
 
     fun getIconsForSearch(
         searchQuery: String,
-        offset: Int
-    ) = flow{
+        offset: Int,
+    ) = flow {
 
         emit(safeApiCall {
             iconsApi.getIconsForSearch(searchQuery, offset)
@@ -51,8 +42,8 @@ class IconsRepository(val iconsApi: IconsApi): BaseRepository() {
     }
 
     fun getIconDetails(
-        iconId: Int
-    ) = flow{
+        iconId: Int,
+    ) = flow {
 
         emit(safeApiCall {
             iconsApi.getIconDetails(iconId)
@@ -62,8 +53,8 @@ class IconsRepository(val iconsApi: IconsApi): BaseRepository() {
 
 
     fun downloadIcon(
-        downloadUrl: String
-    ) = flow{
+        downloadUrl: String,
+    ) = flow {
 
         emit(safeApiCall {
             iconsApi.downloadIcon(downloadUrl)

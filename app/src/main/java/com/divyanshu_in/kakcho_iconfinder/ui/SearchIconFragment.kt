@@ -48,8 +48,9 @@ class SearchIconFragment : Fragment() {
         binding!!.rvIconsList.gone()
 
         binding!!.rvIconsList.layoutManager = GridLayoutManager(requireContext(), 2)
-        adapter = IconsAdapter(requireContext()){ icon_id ->
-            findNavController().navigate(HomeFragmentDirections.actionFirstFragmentToDownloadIconFragment(icon_id))
+        adapter = IconsAdapter(requireContext()) { icon_id ->
+            findNavController().navigate(HomeFragmentDirections.actionFirstFragmentToDownloadIconFragment(
+                icon_id))
         }
         binding!!.rvIconsList.adapter = adapter
 
@@ -66,7 +67,7 @@ class SearchIconFragment : Fragment() {
                 super.onScrollStateChanged(recyclerView, newState)
 
                 if (!recyclerView.canScrollVertically(1) && !isEndReached) {
-                    searchJob = lifecycleScope.launch{
+                    searchJob = lifecycleScope.launch {
                         viewModel.getIconsForSearch(currentQuery, currentOffset)
                     }
                 }
@@ -74,7 +75,7 @@ class SearchIconFragment : Fragment() {
         })
 
 
-        binding?.tilSearch?.editText?.addTextChangedListener(object: TextWatcher{
+        binding?.tilSearch?.editText?.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
 
@@ -83,12 +84,12 @@ class SearchIconFragment : Fragment() {
 
             override fun afterTextChanged(p0: Editable?) {
 
-                if(p0.isNullOrEmpty()){
+                if (p0.isNullOrEmpty()) {
                     binding!!.rvIconsList.gone()
                     debounceJob?.cancel()
                     searchJob?.cancel()
 
-                }else{
+                } else {
                     isEndReached = false
                     currentOffset = 0
                     currentItemCount = 0
@@ -108,17 +109,17 @@ class SearchIconFragment : Fragment() {
         })
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.searchIconData.collect{
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.searchIconData.collect {
                     adapter?.updateAdapter(it?.icons ?: emptyList())
 
 
-                    if(it == null || it.totalCount <= currentItemCount){
+                    if (it == null || it.totalCount <= currentItemCount) {
                         isEndReached = true
                         adapter?.endReached()
-                    }else{
+                    } else {
                         currentOffset += 1
-                        currentItemCount += it?.icons?.size ?: 0
+                        currentItemCount += it.icons?.size ?: 0
                         binding!!.rvIconsList.visible()
                         isEndReached = false
                     }

@@ -10,18 +10,19 @@ import com.divyanshu_in.kakcho_iconfinder.databinding.IconsItemBinding
 import com.divyanshu_in.kakcho_iconfinder.databinding.LoadingItemBinding
 import com.divyanshu_in.kakcho_iconfinder.models.ListAllIconsInIconSetData
 
-class IconsAdapter(private val context: Context, private val onItemClick: (icon_id: Int) -> Unit): RecyclerView.Adapter<RecyclerView.ViewHolder> (){
+class IconsAdapter(private val context: Context, private val onItemClick: (icon_id: Int) -> Unit) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var iconsList: ArrayList<ListAllIconsInIconSetData.Icon> = arrayListOf()
 
     private var isEndReached = false
 
-    class IconsViewHolder(var binding: IconsItemBinding): RecyclerView.ViewHolder(binding.root)
+    class IconsViewHolder(var binding: IconsItemBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if(viewType == ICONSETS_VIEW){
+        return if (viewType == ICONSETS_VIEW) {
             IconsViewHolder(IconsItemBinding.inflate(LayoutInflater.from(context), parent, false))
-        }else{
+        } else {
             CategoriesAdapter.LoadingViewHolder(LoadingItemBinding.inflate(LayoutInflater.from(
                 context), parent, false))
         }
@@ -29,16 +30,16 @@ class IconsAdapter(private val context: Context, private val onItemClick: (icon_
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
-        if(position < iconsList.size){
+        if (position < iconsList.size) {
             val icon = iconsList[position]
             (holder as IconsViewHolder).binding.apply {
-                ivIconPreview.load(icon.rasterSizes.getOrElse(9){ icon.rasterSizes.last() }.formats.first().previewUrl)
+                ivIconPreview.load(icon.rasterSizes.getOrElse(9) { icon.rasterSizes.last() }.formats.first().previewUrl)
 
                 imageButton.apply {
-                    isEnabled = if(icon.isPremium){
+                    isEnabled = if (icon.isPremium) {
                         setImageResource(R.drawable.ic_premium)
                         false
-                    }else{
+                    } else {
                         setImageResource(R.drawable.ic_download)
                         true
                     }
@@ -53,21 +54,22 @@ class IconsAdapter(private val context: Context, private val onItemClick: (icon_
 
     }
 
-    override fun getItemCount(): Int = if(!isEndReached) iconsList.size + 1 else iconsList.size
+    override fun getItemCount(): Int = if (!isEndReached) iconsList.size + 1 else iconsList.size
 
-    override fun getItemViewType(position: Int): Int = if(position < iconsList.size) ICONSETS_VIEW else LOADING_VIEW
+    override fun getItemViewType(position: Int): Int =
+        if (position < iconsList.size) ICONSETS_VIEW else LOADING_VIEW
 
-    fun updateAdapter(iconsets: List<ListAllIconsInIconSetData.Icon>){
+    fun updateAdapter(iconsets: List<ListAllIconsInIconSetData.Icon>) {
         iconsList.addAll(iconsets)
         notifyDataSetChanged()
     }
 
-    fun clear(){
+    fun clear() {
         iconsList.clear()
         notifyDataSetChanged()
     }
 
-    fun endReached(){
+    fun endReached() {
         isEndReached = true
         notifyDataSetChanged()
     }

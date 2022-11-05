@@ -43,13 +43,13 @@ interface IconsApi {
 
     @GET("icons/{icon_id}")
     suspend fun getIconDetails(
-        @Path("icon_id") iconId: Int
+        @Path("icon_id") iconId: Int,
     ): Response<IconDetails>
 
 
     @GET
     suspend fun downloadIcon(
-        @Url downloadUrl: String
+        @Url downloadUrl: String,
     ): Response<ResponseBody>
 
 

@@ -1,10 +1,10 @@
 package com.divyanshu_in.kakcho_iconfinder.ui
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -13,11 +13,9 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
 import com.divyanshu_in.kakcho_iconfinder.databinding.FragmentIconSetsBinding
 import com.divyanshu_in.kakcho_iconfinder.ui.adapters.IconsetsAdapter
-import com.divyanshu_in.kakcho_iconfinder.utils.visible
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-
 
 
 @AndroidEntryPoint
@@ -25,7 +23,7 @@ class IconSetsFragment : Fragment() {
 
     var binding: FragmentIconSetsBinding? = null
     var adapter: IconsetsAdapter? = null
-    val args : IconSetsFragmentArgs by navArgs()
+    val args: IconSetsFragmentArgs by navArgs()
     val viewModel: MainViewModel by viewModels()
 
     var currentOffset = -1
@@ -41,7 +39,7 @@ class IconSetsFragment : Fragment() {
     ): View? {
         binding = FragmentIconSetsBinding.inflate(inflater, container, false)
 
-        adapter = IconsetsAdapter(requireContext()){
+        adapter = IconsetsAdapter(requireContext()) {
             IconsDialogFragment(it).show(childFragmentManager, "TAG")
         }
         binding!!.rvIconsets.adapter = adapter
@@ -72,26 +70,26 @@ class IconSetsFragment : Fragment() {
 
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
-            viewModel.iconsetsList.collect{
-                adapter?.updateAdapter(it?.iconsets ?: emptyList())
+                viewModel.iconsetsList.collect {
+                    adapter?.updateAdapter(it?.iconsets ?: emptyList())
 
-                if((it?.totalCount) == currentCount){
-                    isEndReached = true
-                    adapter?.endReached()
-                }else{
-                    currentOffset += 1
-                    isEndReached = false
+                    if ((it?.totalCount) == currentCount) {
+                        isEndReached = true
+                        adapter?.endReached()
+                    } else {
+                        currentOffset += 1
+                        isEndReached = false
+                    }
                 }
             }
-        }
 
-    }
-        requestJob = lifecycleScope.launch{
+        }
+        requestJob = lifecycleScope.launch {
             viewModel.getIconSets(args.categoryIdentifier, currentOffset)
         }
 
 
-}
+    }
 }

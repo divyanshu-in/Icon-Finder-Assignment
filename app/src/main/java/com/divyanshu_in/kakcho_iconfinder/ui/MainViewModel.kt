@@ -28,7 +28,7 @@ import kotlin.random.Random
 const val CHANNEL_ID = "ICON_FINDER_101"
 
 @HiltViewModel
-class MainViewModel @Inject constructor(val iconsRepo: IconsRepository): ViewModel() {
+class MainViewModel @Inject constructor(val iconsRepo: IconsRepository) : ViewModel() {
 
     var categoryData: MutableStateFlow<ListCategoriesData?> = MutableStateFlow(null)
 
@@ -43,14 +43,14 @@ class MainViewModel @Inject constructor(val iconsRepo: IconsRepository): ViewMod
     var downloadStatus: MutableStateFlow<Status> = MutableStateFlow(Status.LOADING)
 
 
-    fun getCategories(lastCategoryIdentifier: String?){
+    fun getCategories(lastCategoryIdentifier: String?) {
 
 
         viewModelScope.launch {
 
             iconsRepo.listAllCategories(lastCategoryIdentifier).collect {
 
-                if(it is ApiResponse.Success<*>){
+                if (it is ApiResponse.Success<*>) {
                     categoryData.emit(it.response)
                 }
 
@@ -58,41 +58,40 @@ class MainViewModel @Inject constructor(val iconsRepo: IconsRepository): ViewMod
         }
     }
 
-    suspend fun getIconSets(categoryIdentifier: String, offset: Int){
+    suspend fun getIconSets(categoryIdentifier: String, offset: Int) {
 
 
+        iconsRepo.getItemSets(categoryIdentifier, offset).collect {
 
-            iconsRepo.getItemSets(categoryIdentifier, offset).collect {
-
-                if(it is ApiResponse.Success<*>){
-                    iconsetsList.emit(it.response)
-                }
-
+            if (it is ApiResponse.Success<*>) {
+                iconsetsList.emit(it.response)
             }
+
+        }
 
 
     }
 
-    fun getIcons(iconSetId: Int, offset: Int){
+    fun getIcons(iconSetId: Int, offset: Int) {
 
         viewModelScope.launch {
 
             iconsRepo.getAllIcons(iconSetId, offset).collect {
 
-                if(it is ApiResponse.Success<*>){
+                if (it is ApiResponse.Success<*>) {
                     iconsList.emit(it.response?.icons ?: emptyList())
                 }
             }
         }
     }
 
-    suspend fun getIconsForSearch(query: String, offset: Int){
+    suspend fun getIconsForSearch(query: String, offset: Int) {
 
-            iconsRepo.getIconsForSearch(query, offset).collect {
-                if(it is ApiResponse.Success<*>){
-                    searchIconData.emit(it.response)
-                }
+        iconsRepo.getIconsForSearch(query, offset).collect {
+            if (it is ApiResponse.Success<*>) {
+                searchIconData.emit(it.response)
             }
+        }
     }
 
     private fun createNotificationChannel(context: Context) {
@@ -111,7 +110,7 @@ class MainViewModel @Inject constructor(val iconsRepo: IconsRepository): ViewMod
         }
     }
 
-    private fun showNotificationForDownloadedIcon(fileName: String, context: Context){
+    private fun showNotificationForDownloadedIcon(fileName: String, context: Context) {
         var builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_premium)
             .setContentTitle("Icon Downloaded \uD83D\uDC4D")
@@ -124,12 +123,12 @@ class MainViewModel @Inject constructor(val iconsRepo: IconsRepository): ViewMod
         }
     }
 
-    fun getIconDetails(iconId: Int){
+    fun getIconDetails(iconId: Int) {
 
         viewModelScope.launch {
 
             iconsRepo.getIconDetails(iconId).collect {
-                if(it is ApiResponse.Success<*>){
+                if (it is ApiResponse.Success<*>) {
                     iconDetails.emit(it.response)
                 }
 
@@ -138,28 +137,29 @@ class MainViewModel @Inject constructor(val iconsRepo: IconsRepository): ViewMod
         }
     }
 
-    fun downloadIcon(downloadUrl: String, context: Context){
+    fun downloadIcon(downloadUrl: String, context: Context) {
 
 
         viewModelScope.launch(Dispatchers.IO) {
             downloadStatus.emit(Status.LOADING)
 
-            iconsRepo.downloadIcon(downloadUrl).collect{ response ->
-                if(response is ApiResponse.Success<*>){
+            iconsRepo.downloadIcon(downloadUrl).collect { response ->
+                if (response is ApiResponse.Success<*>) {
 
 
-                    response.response?.bytes()?.let {byteArray ->
-                        response.headers?.get("Content-Disposition")?.split("filename=")?.last()?.let { fileName ->
-                            val imageSaved = saveImage(byteArray, context, fileName)
+                    response.response?.bytes()?.let { byteArray ->
+                        response.headers?.get("Content-Disposition")?.split("filename=")?.last()
+                            ?.let { fileName ->
+                                val imageSaved = saveImage(byteArray, context, fileName)
 
-                            if(imageSaved){
-                                downloadStatus.emit(Status.FINISHED)
-                                createNotificationChannel(context)
-                                showNotificationForDownloadedIcon(fileName, context)
-                            }else{
-                                downloadStatus.emit(Status.FAILED)
+                                if (imageSaved) {
+                                    downloadStatus.emit(Status.FINISHED)
+                                    createNotificationChannel(context)
+                                    showNotificationForDownloadedIcon(fileName, context)
+                                } else {
+                                    downloadStatus.emit(Status.FAILED)
+                                }
                             }
-                        }
 
                     }
 
@@ -198,7 +198,7 @@ class MainViewModel @Inject constructor(val iconsRepo: IconsRepository): ViewMod
                 e.printStackTrace()
                 return false
             }
-        }else{
+        } else {
             val dir = File(context.filesDir, "Icons")
             //make directory icons if not available
 

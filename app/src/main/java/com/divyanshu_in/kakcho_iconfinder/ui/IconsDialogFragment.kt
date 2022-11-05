@@ -1,6 +1,5 @@
 package com.divyanshu_in.kakcho_iconfinder.ui
 
-import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -17,11 +16,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.divyanshu_in.kakcho_iconfinder.databinding.FragmentListIconsBinding
 import com.divyanshu_in.kakcho_iconfinder.ui.adapters.IconsAdapter
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class IconsDialogFragment(private val iconset_id: Int ): DialogFragment(){
+class IconsDialogFragment(private val iconset_id: Int) : DialogFragment() {
 
     private var adapter: IconsAdapter? = null
     var binding: FragmentListIconsBinding? = null
@@ -35,8 +33,9 @@ class IconsDialogFragment(private val iconset_id: Int ): DialogFragment(){
         binding = FragmentListIconsBinding.inflate(inflater, container, false)
 
         binding!!.rvIconsList.layoutManager = GridLayoutManager(requireContext(), 2)
-        adapter = IconsAdapter(requireContext()){
-            findNavController().navigate(IconSetsFragmentDirections.actionIconSetsFragmentToDownloadIconFragment(it))
+        adapter = IconsAdapter(requireContext()) {
+            findNavController().navigate(IconSetsFragmentDirections.actionIconSetsFragmentToDownloadIconFragment(
+                it))
         }
         binding!!.rvIconsList.adapter = adapter
 
@@ -50,10 +49,10 @@ class IconsDialogFragment(private val iconset_id: Int ): DialogFragment(){
         super.onViewCreated(view, savedInstanceState)
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.getIcons(iconset_id, 0)
 
-                viewModel.iconsList.collect{
+                viewModel.iconsList.collect {
                     adapter?.updateAdapter(it.filterNotNull())
                 }
             }
@@ -63,7 +62,8 @@ class IconsDialogFragment(private val iconset_id: Int ): DialogFragment(){
 
     override fun onStart() {
         super.onStart()
-        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT)
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
     }

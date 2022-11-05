@@ -38,12 +38,12 @@ class ApiBuilder(private val apiKey: String) {
 
         val retrofit = Retrofit
             .Builder()
-            .addConverterFactory(MoshiConverterFactory.create(moshi)).client(client).baseUrl(BASE_URL)
+            .addConverterFactory(MoshiConverterFactory.create(moshi)).client(client)
+            .baseUrl(BASE_URL)
             .build()
 
         return retrofit.create(IconsApi::class.java)
     }
-
 
 
 }
