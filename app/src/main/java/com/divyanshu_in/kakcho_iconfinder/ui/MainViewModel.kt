@@ -9,7 +9,6 @@ import android.os.Environment
 import android.provider.MediaStore
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.divyanshu_in.kakcho_iconfinder.R
@@ -33,15 +32,15 @@ class MainViewModel @Inject constructor(val iconsRepo: IconsRepository): ViewMod
 
     var categoryData: MutableStateFlow<ListCategoriesData?> = MutableStateFlow(null)
 
-    var iconsetsList = MutableStateFlow(emptyList<ListItemSetsInCategoryData.Iconset?>())
+    var iconsetsList: MutableStateFlow<ListItemSetsInCategoryData?> = MutableStateFlow(null)
 
     var iconsList = MutableStateFlow(emptyList<ListAllIconsInIconSetData.Icon?>())
 
-    var searchIconList = MutableStateFlow(emptyList<ListAllIconsInIconSetData.Icon?>())
+    var searchIconData: MutableStateFlow<ListAllIconsInIconSetData?> = MutableStateFlow(null)
 
     var iconDetails: MutableStateFlow<IconDetails?> = MutableStateFlow(null)
 
-    var downloadStatus: MutableStateFlow<Status?> = MutableStateFlow(Status.LOADING)
+    var downloadStatus: MutableStateFlow<Status> = MutableStateFlow(Status.LOADING)
 
 
     fun getCategories(lastCategoryIdentifier: String?){
@@ -59,18 +58,18 @@ class MainViewModel @Inject constructor(val iconsRepo: IconsRepository): ViewMod
         }
     }
 
-    fun getIconSets(categoryIdentifier: String, offset: Int){
+    suspend fun getIconSets(categoryIdentifier: String, offset: Int){
 
-        viewModelScope.launch {
+
 
             iconsRepo.getItemSets(categoryIdentifier, offset).collect {
 
                 if(it is ApiResponse.Success<*>){
-                    iconsetsList.emit(it.response?.iconsets ?: emptyList())
+                    iconsetsList.emit(it.response)
                 }
 
             }
-        }
+
 
     }
 
@@ -87,17 +86,13 @@ class MainViewModel @Inject constructor(val iconsRepo: IconsRepository): ViewMod
         }
     }
 
-    fun getIconsForSearch(query: String, offset: Int){
-
-        viewModelScope.launch {
+    suspend fun getIconsForSearch(query: String, offset: Int){
 
             iconsRepo.getIconsForSearch(query, offset).collect {
                 if(it is ApiResponse.Success<*>){
-                    searchIconList.emit(it.response?.icons ?: emptyList())
+                    searchIconData.emit(it.response)
                 }
             }
-
-        }
     }
 
     private fun createNotificationChannel(context: Context) {

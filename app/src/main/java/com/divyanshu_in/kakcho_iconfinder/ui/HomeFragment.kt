@@ -43,7 +43,7 @@ class HomeFragment : Fragment() {
         }
 
         childFragmentManager.beginTransaction()
-            .add(R.id.list_icons_fragment_container, SearchIconFragment())
+            .replace(R.id.list_icons_fragment_container, SearchIconFragment())
             .commit()
 
 

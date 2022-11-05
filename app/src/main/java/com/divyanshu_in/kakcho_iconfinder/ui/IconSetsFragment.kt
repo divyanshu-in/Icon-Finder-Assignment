@@ -15,6 +15,7 @@ import com.divyanshu_in.kakcho_iconfinder.databinding.FragmentIconSetsBinding
 import com.divyanshu_in.kakcho_iconfinder.ui.adapters.IconsetsAdapter
 import com.divyanshu_in.kakcho_iconfinder.utils.visible
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 
@@ -27,8 +28,12 @@ class IconSetsFragment : Fragment() {
     val args : IconSetsFragmentArgs by navArgs()
     val viewModel: MainViewModel by viewModels()
 
-    var currentOffset = 0
+    var currentOffset = -1
     var isEndReached = false
+
+    var currentCount = 0
+
+    var requestJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -55,7 +60,12 @@ class IconSetsFragment : Fragment() {
                 super.onScrollStateChanged(recyclerView, newState)
 
                 if (!recyclerView.canScrollVertically(1) && !isEndReached) {
-                    viewModel.getIconSets(args.categoryIdentifier, currentOffset)
+                    requestJob?.cancel()
+
+                    requestJob = lifecycleScope.launch {
+                        viewModel.getIconSets(args.categoryIdentifier, currentOffset)
+                    }
+
                 }
             }
         })
@@ -64,24 +74,23 @@ class IconSetsFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
 
-            viewModel.getIconSets(args.categoryIdentifier, currentOffset)
-
             viewModel.iconsetsList.collect{
-                adapter?.updateAdapter(it)
+                adapter?.updateAdapter(it?.iconsets ?: emptyList())
 
-                if(it.isNotEmpty()){
-                    currentOffset += 1
-                    isEndReached = false
-                }else{
+                if((it?.totalCount) == currentCount){
                     isEndReached = true
                     adapter?.endReached()
+                }else{
+                    currentOffset += 1
+                    isEndReached = false
                 }
             }
         }
 
     }
-
-
+        requestJob = lifecycleScope.launch{
+            viewModel.getIconSets(args.categoryIdentifier, currentOffset)
+        }
 
 
 }

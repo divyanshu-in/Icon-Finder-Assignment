@@ -1,6 +1,5 @@
 package com.divyanshu_in.kakcho_iconfinder.ui
 
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -15,11 +14,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.divyanshu_in.kakcho_iconfinder.R
 import com.divyanshu_in.kakcho_iconfinder.databinding.FragmentListIconsBinding
 import com.divyanshu_in.kakcho_iconfinder.ui.adapters.IconsAdapter
 import com.divyanshu_in.kakcho_iconfinder.utils.gone
-import com.divyanshu_in.kakcho_iconfinder.utils.hide
 import com.divyanshu_in.kakcho_iconfinder.utils.visible
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
@@ -36,6 +33,10 @@ class SearchIconFragment : Fragment() {
     var currentOffset = 0
     var isEndReached = false
     var currentQuery = ""
+
+    var currentItemCount = 0
+
+    var searchJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -65,7 +66,9 @@ class SearchIconFragment : Fragment() {
                 super.onScrollStateChanged(recyclerView, newState)
 
                 if (!recyclerView.canScrollVertically(1) && !isEndReached) {
-                    viewModel.getIconsForSearch(currentQuery, currentOffset)
+                    searchJob = lifecycleScope.launch{
+                        viewModel.getIconsForSearch(currentQuery, currentOffset)
+                    }
                 }
             }
         })
@@ -83,10 +86,15 @@ class SearchIconFragment : Fragment() {
                 if(p0.isNullOrEmpty()){
                     binding!!.rvIconsList.gone()
                     debounceJob?.cancel()
+                    searchJob?.cancel()
 
                 }else{
+                    isEndReached = false
+                    currentOffset = 0
+                    currentItemCount = 0
                     adapter?.clear()
                     debounceJob?.cancel()
+
                     debounceJob = lifecycleScope.launch {
                         delay(450)
                         currentQuery = p0.toString()
@@ -101,17 +109,20 @@ class SearchIconFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.searchIconList.collect{
-                    adapter?.updateAdapter(it.filterNotNull())
+                viewModel.searchIconData.collect{
+                    adapter?.updateAdapter(it?.icons ?: emptyList())
 
-                    if(it.isNotEmpty()){
-                        currentOffset += 1
-                        binding!!.rvIconsList.visible()
-                        isEndReached = false
-                    }else{
+
+                    if(it == null || it.totalCount <= currentItemCount){
                         isEndReached = true
                         adapter?.endReached()
+                    }else{
+                        currentOffset += 1
+                        currentItemCount += it?.icons?.size ?: 0
+                        binding!!.rvIconsList.visible()
+                        isEndReached = false
                     }
+
                 }
             }
         }

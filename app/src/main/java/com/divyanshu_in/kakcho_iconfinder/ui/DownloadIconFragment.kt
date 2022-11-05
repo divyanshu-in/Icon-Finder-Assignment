@@ -14,7 +14,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.divyanshu_in.kakcho_iconfinder.R
 import com.divyanshu_in.kakcho_iconfinder.databinding.FragmentDownloadIconBinding
+import com.divyanshu_in.kakcho_iconfinder.models.Status
 import com.divyanshu_in.kakcho_iconfinder.ui.adapters.DownloadIconAdapter
+import com.divyanshu_in.kakcho_iconfinder.utils.gone
+import com.divyanshu_in.kakcho_iconfinder.utils.visible
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -29,9 +32,6 @@ class DownloadIconFragment : Fragment() {
     val args : DownloadIconFragmentArgs by navArgs()
 
     var adapter: DownloadIconAdapter? = null
-
-    var progressDialog: ProgressDialog? = null
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -57,12 +57,35 @@ class DownloadIconFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch{
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
 
-                viewModel.iconDetails.collect{
+                viewModel.downloadStatus.collect{
+                    when(it){
+                        Status.LOADING -> {
+                            binding!!.cvProgress.visible()
+                        }
+                        Status.FINISHED -> {
+                            binding!!.cvProgress.gone()
+                            Toast.makeText(requireContext(), "icon saved!", Toast.LENGTH_SHORT).show()
+
+                        }
+                        Status.FAILED -> {
+                            binding!!.cvProgress.gone()
+                            Toast.makeText(requireContext(), "oops! something terrible happened, please try again!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+
+                viewModel.iconDetails.collect {
+                    if (!it?.rasterSizes.isNullOrEmpty()) {
+                        binding!!.cvProgress.gone()
+                    }
                     adapter?.updateAdapter(it?.rasterSizes?.filterNotNull() ?: emptyList())
                 }
-
             }
-
         }
 
     }

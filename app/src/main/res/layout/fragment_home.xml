@@ -8,16 +8,16 @@
     tools:context=".ui.HomeFragment">
 
 
-    <TextView
-        android:id="@+id/textView2"
-        android:text="Categories"
-        style="@style/CasualBoldTextView" />
-
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/list_icons_fragment_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />
+
+    <TextView
+        android:id="@+id/textView2"
+        style="@style/CasualBoldTextView"
+        android:text="Categories" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_categories"
