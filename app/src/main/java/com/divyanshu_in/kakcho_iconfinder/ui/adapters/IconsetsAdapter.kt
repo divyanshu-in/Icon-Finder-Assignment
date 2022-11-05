@@ -14,6 +14,7 @@ const val ICONSETS_VIEW = 0
 class IconsetsAdapter(private val context: Context, private val onItemClick: (iconset_id: Int) -> Unit): RecyclerView.Adapter<RecyclerView.ViewHolder> (){
 
     private var iconsetsList: ArrayList<ListItemSetsInCategoryData.Iconset> = arrayListOf()
+    private var isEndReached = false
 
     class IconsetsViewHolder(var binding: IconSetItemsBinding): RecyclerView.ViewHolder(binding.root)
 
@@ -44,12 +45,17 @@ class IconsetsAdapter(private val context: Context, private val onItemClick: (ic
 
     }
 
-    override fun getItemCount(): Int = iconsetsList.size + 1
+    override fun getItemCount(): Int = if(!isEndReached) iconsetsList.size + 1 else iconsetsList.size
 
     override fun getItemViewType(position: Int): Int = if(position < iconsetsList.size) ICONSETS_VIEW else LOADING_VIEW
 
     fun updateAdapter(iconsets: List<ListItemSetsInCategoryData.Iconset?>){
         iconsetsList.addAll(iconsets.filterNotNull())
+        notifyDataSetChanged()
+    }
+
+    fun endReached(){
+        isEndReached = true
         notifyDataSetChanged()
     }
 

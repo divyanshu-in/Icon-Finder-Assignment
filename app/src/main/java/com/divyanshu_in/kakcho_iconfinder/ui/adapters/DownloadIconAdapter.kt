@@ -41,10 +41,9 @@ class DownloadIconAdapter(private val context: Context, private val onItemClick:
 
                 tvSizeDetail.text = "size: ${icon.sizeHeight} X ${icon.sizeWidth}"
 
-                root.setOnClickListener {
+                imageButton.setOnClickListener {
                     icon.formats?.first()?.downloadUrl?.let{
                         onItemClick.invoke(it)
-
                     }
                 }
 

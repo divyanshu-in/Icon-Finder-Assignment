@@ -1,18 +1,19 @@
 package com.divyanshu_in.kakcho_iconfinder.ui
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.ContentValues
 import android.content.Context
 import android.os.Build
 import android.os.Environment
-import android.os.FileUtils
 import android.provider.MediaStore
-import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.divyanshu_in.kakcho_iconfinder.models.IconDetails
-import com.divyanshu_in.kakcho_iconfinder.models.ListAllIconsInIconSetData
-import com.divyanshu_in.kakcho_iconfinder.models.ListCategoriesData
-import com.divyanshu_in.kakcho_iconfinder.models.ListItemSetsInCategoryData
+import com.divyanshu_in.kakcho_iconfinder.R
+import com.divyanshu_in.kakcho_iconfinder.models.*
 import com.divyanshu_in.kakcho_iconfinder.network.IconsRepository
 import com.divyanshu_in.kakcho_iconfinder.utils.ApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,15 +21,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
-import java.io.FileWriter
 import java.io.OutputStream
 import javax.inject.Inject
+import kotlin.random.Random
 
+
+const val CHANNEL_ID = "ICON_FINDER_101"
 
 @HiltViewModel
 class MainViewModel @Inject constructor(val iconsRepo: IconsRepository): ViewModel() {
 
-    var categoriesList = MutableStateFlow(emptyList<ListCategoriesData.Category>())
+    var categoryData: MutableStateFlow<ListCategoriesData?> = MutableStateFlow(null)
 
     var iconsetsList = MutableStateFlow(emptyList<ListItemSetsInCategoryData.Iconset?>())
 
@@ -38,16 +41,18 @@ class MainViewModel @Inject constructor(val iconsRepo: IconsRepository): ViewMod
 
     var iconDetails: MutableStateFlow<IconDetails?> = MutableStateFlow(null)
 
+    var downloadStatus: MutableStateFlow<Status?> = MutableStateFlow(Status.LOADING)
 
-    fun getCategories(){
+
+    fun getCategories(lastCategoryIdentifier: String?){
 
 
         viewModelScope.launch {
 
-            iconsRepo.listAllCategories(null).collect {
+            iconsRepo.listAllCategories(lastCategoryIdentifier).collect {
 
                 if(it is ApiResponse.Success<*>){
-                    categoriesList.emit(it.response?.categories ?: emptyList())
+                    categoryData.emit(it.response)
                 }
 
             }
@@ -90,13 +95,42 @@ class MainViewModel @Inject constructor(val iconsRepo: IconsRepository): ViewMod
                 if(it is ApiResponse.Success<*>){
                     searchIconList.emit(it.response?.icons ?: emptyList())
                 }
-
             }
 
         }
     }
 
+    private fun createNotificationChannel(context: Context) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = context.getString(R.string.channel_name)
+            val descriptionText = context.getString(R.string.channel_description)
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            // Register the channel with the system
+            val notificationManager: NotificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun showNotificationForDownloadedIcon(fileName: String, context: Context){
+        var builder = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_premium)
+            .setContentTitle("Icon Downloaded \uD83D\uDC4D")
+            .setContentText("$fileName added to the downloads Successfully!")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+        with(NotificationManagerCompat.from(context)) {
+            val notificationId = Random.nextInt()
+            notify(notificationId, builder.build())
+        }
+    }
+
     fun getIconDetails(iconId: Int){
+
         viewModelScope.launch {
 
             iconsRepo.getIconDetails(iconId).collect {
@@ -113,14 +147,23 @@ class MainViewModel @Inject constructor(val iconsRepo: IconsRepository): ViewMod
 
 
         viewModelScope.launch(Dispatchers.IO) {
+            downloadStatus.emit(Status.LOADING)
 
             iconsRepo.downloadIcon(downloadUrl).collect{ response ->
                 if(response is ApiResponse.Success<*>){
 
 
                     response.response?.bytes()?.let {byteArray ->
-                        response.headers?.get("Content-Disposition")?.split("filename=")?.last()?.let {
-                            saveImage(byteArray, context, it)
+                        response.headers?.get("Content-Disposition")?.split("filename=")?.last()?.let { fileName ->
+                            val imageSaved = saveImage(byteArray, context, fileName)
+
+                            if(imageSaved){
+                                downloadStatus.emit(Status.FINISHED)
+                                createNotificationChannel(context)
+                                showNotificationForDownloadedIcon(fileName, context)
+                            }else{
+                                downloadStatus.emit(Status.FAILED)
+                            }
                         }
 
                     }
@@ -133,10 +176,12 @@ class MainViewModel @Inject constructor(val iconsRepo: IconsRepository): ViewMod
     fun saveImage(
         byteArray: ByteArray,
         context: Context, fileName: String,
-    ) {
+    ): Boolean {
 
         val outputStream: OutputStream?
 
+
+        //Using MediaStore api for android versions > Q
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val resolver = context.contentResolver
             val contentValues = ContentValues()
@@ -149,12 +194,14 @@ class MainViewModel @Inject constructor(val iconsRepo: IconsRepository): ViewMod
             try {
                 uri?.let {
                     outputStream = resolver.openOutputStream(it)
-
                     outputStream?.write(byteArray)
+                    outputStream?.close()
+                    return true
                 }
 
             } catch (e: Exception) {
                 e.printStackTrace()
+                return false
             }
         }else{
             val dir = File(context.filesDir, "Icons")
@@ -168,10 +215,13 @@ class MainViewModel @Inject constructor(val iconsRepo: IconsRepository): ViewMod
                 val file = File(dir, fileName)
                 file.writeBytes(byteArray)
 
+                return true
             } catch (e: java.lang.Exception) {
                 e.printStackTrace()
             }
+            return false
         }
+        return false
     }
 
 

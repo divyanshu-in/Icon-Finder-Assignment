@@ -15,6 +15,8 @@ class CategoriesAdapter(private val context: Context, private val onCategoryClic
 
     private var categoryList: ArrayList<ListCategoriesData.Category> = arrayListOf()
 
+    private var isEndReached = false
+
     class CategoriesViewHolder(var binding: CategoriesItemBinding): RecyclerView.ViewHolder(binding.root)
 
     class LoadingViewHolder(var binding: LoadingItemBinding): RecyclerView.ViewHolder(binding.root)
@@ -42,16 +44,19 @@ class CategoriesAdapter(private val context: Context, private val onCategoryClic
 
         }
 
-
-
     }
 
-    override fun getItemCount(): Int = categoryList.size + 1
+    override fun getItemCount(): Int = if(isEndReached) categoryList.size else categoryList.size + 1
 
     override fun getItemViewType(position: Int): Int = if(position < categoryList.size) CATEGORY_VIEW else LOADING_VIEW
 
     fun updateAdapter(categories: List<ListCategoriesData.Category>){
         categoryList.addAll(categories)
+        notifyDataSetChanged()
+    }
+
+    fun endReached(){
+        isEndReached = true
         notifyDataSetChanged()
     }
 
