@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="../../Android/Gradle utils/caches/transforms-3/e94cab97754daa1f3e818a00d8dae7aa/transformed/material-1.7.0/res/drawable/ic_m3_chip_close.xml" value="0.244" />
+        <entry key="../../Android/Gradle utils/caches/transforms-3/e94cab97754daa1f3e818a00d8dae7aa/transformed/material-1.7.0/res/drawable/ic_mtrl_chip_close_circle.xml" value="0.244" />
+        <entry key="app/src/main/res/drawable/ic_download.xml" value="0.244" />
+        <entry key="app/src/main/res/drawable/ic_image.xml" value="0.165" />
+        <entry key="app/src/main/res/drawable/ic_inventory.xml" value="0.244" />
+        <entry key="app/src/main/res/drawable/ic_premium.xml" value="0.244" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.25679347826086957" />
+        <entry key="app/src/main/res/layout/categories_item.xml" value="0.25679347826086957" />
+        <entry key="app/src/main/res/layout/content_main.xml" value="0.25679347826086957" />
+        <entry key="app/src/main/res/layout/fragment_download_icon.xml" value="0.25679347826086957" />
+        <entry key="app/src/main/res/layout/fragment_first.xml" value="0.4" />
+        <entry key="app/src/main/res/layout/fragment_home.xml" value="0.25679347826086957" />
+        <entry key="app/src/main/res/layout/fragment_icon_sets.xml" value="0.25679347826086957" />
+        <entry key="app/src/main/res/layout/fragment_list_icons.xml" value="0.25679347826086957" />
+        <entry key="app/src/main/res/layout/fragment_search_icon.xml" value="0.25679347826086957" />
+        <entry key="app/src/main/res/layout/icon_set_items.xml" value="0.25679347826086957" />
+        <entry key="app/src/main/res/layout/icons_item.xml" value="0.25679347826086957" />
+        <entry key="app/src/main/res/layout/loading_item.xml" value="0.25679347826086957" />
+        <entry key="app/src/main/res/menu/menu_main.xml" value="0.3338541666666667" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>

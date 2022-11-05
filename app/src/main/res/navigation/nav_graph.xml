@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/FirstFragment">
+
+    <fragment
+        android:id="@+id/FirstFragment"
+        android:name="com.divyanshu_in.kakcho_iconfinder.ui.HomeFragment"
+        android:label="@string/first_fragment_label"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_FirstFragment_to_iconSetsFragment"
+            app:destination="@id/iconSetsFragment" />
+        <action
+            android:id="@+id/action_FirstFragment_to_downloadIconFragment"
+            app:destination="@id/downloadIconFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/iconSetsFragment"
+        android:name="com.divyanshu_in.kakcho_iconfinder.ui.IconSetsFragment"
+        android:label="fragment_icon_sets"
+        tools:layout="@layout/fragment_icon_sets" >
+        <argument
+            android:name="category_identifier"
+            app:argType="string" />
+        <argument android:name="category_name"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_iconSetsFragment_to_downloadIconFragment"
+            app:destination="@id/downloadIconFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/downloadIconFragment"
+        android:name="com.divyanshu_in.kakcho_iconfinder.ui.DownloadIconFragment"
+        android:label="fragment_download_icon"
+        tools:layout="@layout/fragment_download_icon" >
+        <argument
+            android:name="icon_id"
+            app:argType="integer" />
+    </fragment>
+</navigation>
